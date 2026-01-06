@@ -132,3 +132,20 @@ node version >= 20
 npm install
 npm run dev
 
+Here are my submission details for the project:
+
+GitHub repository: https://github.com/jefferynmose12/flowva-test
+
+Deployed live URL: https://flowva-test-9bn8mffnq-jefferynmose12s-projects.vercel.app/
+
+
+You can create an account with any email or use this details below to login 
+
+Email: Jefferyjohnnmose@gmail.com 
+Password: Cooking12345
+
+Or 
+
+Email: jefferyjohnisioman@gmail.com
+Password: Cooking12345
+
