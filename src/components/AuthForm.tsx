@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { Autocomplete } from "@react-google-maps/api";
 import Input from "./ui/Input";
 import Button from "./ui/Button";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +21,9 @@ const AuthForm = ({ mode, onSubmit, isSubmitting = false }: AuthFormProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cityAcRef = useRef<any>(null);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -28,7 +32,16 @@ const AuthForm = ({ mode, onSubmit, isSubmitting = false }: AuthFormProps) => {
   }>({});
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCityPlaceChanged = () => {
+    if (!cityAcRef.current) return;
+    const place = cityAcRef.current.getPlace();
+    if (!place?.address_components) return;
+    const cityName = place.address_components.find((c: { types: string[] }) => c.types.includes("locality"))?.long_name || "";
+    const state = place.address_components.find((c: { types: string[] }) => c.types.includes("administrative_area_level_1"))?.short_name || "";
+    setCity(cityName && state ? `${cityName}, ${state}` : place.formatted_address || "");
+  };
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     const newErrors: typeof errors = {};
@@ -147,6 +160,27 @@ const AuthForm = ({ mode, onSubmit, isSubmitting = false }: AuthFormProps) => {
                 }
               }}
             />
+          )}
+
+          {mode === "login" && (
+            <div className="flex flex-col mb-3">
+              <label className="text-gray-700 mb-1 font-medium">
+                City <span className="text-gray-400 font-normal text-sm">(optional)</span>
+              </label>
+              <Autocomplete
+                onLoad={(ac: unknown) => (cityAcRef.current = ac)}
+                onPlaceChanged={handleCityPlaceChanged}
+                options={{ componentRestrictions: { country: "us" }, types: ["(cities)"] }}
+              >
+                <input
+                  type="text"
+                  className="w-full placeholder:text-gray-400 text-gray-700 border text-base py-2.5 px-3.5 transition-all ease-linear duration-200 rounded-md outline-none border-[#EDE9FE] focus:border-[#9013fe]"
+                  placeholder="Your city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </Autocomplete>
+            </div>
           )}
 
           <Button type="submit" loading={loading || isSubmitting}>
